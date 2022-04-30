@@ -16,14 +16,14 @@ const int BUF_SIZE = 64;
 
 void timer(int time)
 {
-	int timer = 5;
-	while (timer > 0)
+
+	while (time > 0)
 	{
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		std::cout << timer << std::endl;
-		timer--;
+		time--;
 
-		if (timer == 0)
+		if (time < 0)
 		{
 			std::cout << "Blast OFF!" << std::endl;
 		}
@@ -35,6 +35,9 @@ int main()
 	SOCKET sSnd, sRec;
 	SOCKADDR_IN addrRec;
 	SOCKADDR_IN addrSnd;
+	int timeVal = 90;
+	char wrtBuffer[64]{};
+	char rdBuffer[64]{};
 
 	int iWSAStatus;		// Windows Socket API Status
 	WSADATA wsaData;
@@ -88,13 +91,14 @@ int main()
 		WSACleanup();
 		return 1;
 	}*/
-	std::thread timerTh(timer, 5);
+	std::thread timerTh(timer, &timeVal);
 
 	timerTh.join();
 	loop = true;
 
 	while (loop)
 	{
+		/*
 		if (!listen)
 		{
 			std::cout << "Enter a message to send (or quit, or listen): ";
@@ -144,7 +148,7 @@ int main()
 			{
 				loop = false;
 			}
-		}
+		} */
 	}
 
 	closesocket(sRec);
