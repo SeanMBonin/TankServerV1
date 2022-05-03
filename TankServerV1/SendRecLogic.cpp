@@ -98,27 +98,27 @@ BOOL SendRecLogic::posAdjust(unsigned char dir, int player)
 
 bool SendRecLogic::lobby()
 {
-
+	return false;
 }
 
 bool SendRecLogic::generateWalls()
 {
-
+	return false;
 }
 
 bool SendRecLogic::generateTanks()
 {
-
+	return false;
 }
 
 bool SendRecLogic::generateMines()
 {
-
+	return false;
 }
 
 bool SendRecLogic::gameStart()
 {
-
+	return false;
 }
 
 void SendRecLogic::sendUpdate()

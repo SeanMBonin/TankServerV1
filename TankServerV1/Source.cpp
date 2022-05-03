@@ -2,7 +2,7 @@
 #include <vector>
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-
+#include <string>
 #include <WinSock2.h>
 #include <ws2tcpip.h>
 #include <Windows.h>
@@ -32,9 +32,13 @@ void timer(int time)
 
 int main()
 {
-	SOCKET sSnd, sRec;
+	SOCKET sock;
+	SOCKADDR_IN addrP1;
+	SOCKADDR_IN addrP2;
 	SOCKADDR_IN addrRec;
-	SOCKADDR_IN addrSnd;
+	SOCKADDR_IN checkAddr;
+	int addrSize = sizeof(checkAddr);
+
 	int timeVal = 90;
 	char wrtBuffer[64]{};
 	char rdBuffer[64]{};
@@ -42,8 +46,7 @@ int main()
 	int iWSAStatus;		// Windows Socket API Status
 	WSADATA wsaData;
 
-	int sockErrSnd;
-	int sockErrRec;
+	int sockErr;
 
 	char buf[BUF_SIZE];
 	bool loop = true, listen = false;
@@ -54,20 +57,26 @@ int main()
 	std::cout << wsaData.szDescription << std::endl;
 
 	// address family (TCP, UDP), datagram socket (UDP), 0 for default protocol
-	sSnd = socket(AF_INET, SOCK_DGRAM, 0);
-	sRec = socket(AF_INET, SOCK_DGRAM, 0);
+	//main socket
+	sock = socket(AF_INET, SOCK_DGRAM, 0);
 
+	addrP1.sin_family = AF_INET;
+	addrP2.sin_family = AF_INET;
 	addrRec.sin_family = AF_INET;
-	addrSnd.sin_family = AF_INET;
 
+	addrP1.sin_port = htons(49152);
+	addrP2.sin_port = htons(49152);
 	addrRec.sin_port = htons(49152);
-	addrSnd.sin_port = htons(49152);
 
-	inet_pton(AF_INET, "64.72.2.69", &(addrRec.sin_addr));
-	inet_pton(AF_INET, "64.72.2.54", &(addrSnd.sin_addr));
+	inet_pton(AF_INET, "64.72.1.168", &(addrP1.sin_addr));
+	inet_pton(AF_INET, "64.72.2.119", &(addrP2.sin_addr));
+	inet_pton(AF_INET, "64.72.1.247", &(addrRec.sin_addr));
 
-	sockaddr* addressRec = (sockaddr*)&addrRec;
+	
+	//sockaddr* addressP1 = (sockaddr*)&addrP1;
+	//sockaddr* addressP2 = (sockaddr*)&addrP2;
 	//sockaddr* addressSnd = (sockaddr*)&addrSnd;
+	sockaddr* addressRec = (sockaddr*)&addrRec;
 
 	/*
 	if (sSnd == INVALID_SOCKET || sRec == INVALID_SOCKET)
@@ -79,8 +88,12 @@ int main()
 	} */
 
 	// associate local address with a socket
-	sockErrSnd = connect(sSnd, (sockaddr*)&addrSnd, sizeof(addrSnd));
-	sockErrRec = bind(sRec, addressRec, sizeof(addrRec));
+
+	sockErr = bind(sock, addressRec, sizeof(addrRec));
+	//sockErrSnd = connect(sSnd, (sockaddr*)&addrSnd, sizeof(addrSnd));
+	
+	//sockErrSnd = connect(sSnd, (sockaddr*)&addrSnd, sizeof(addrSnd));
+	//sockErrRec = bind(sRec, addressRec, sizeof(addrRec));
 
 	/*
 	if (sockErrSnd == SOCKET_ERROR || sockErrRec == SOCKET_ERROR)
@@ -91,14 +104,16 @@ int main()
 		WSACleanup();
 		return 1;
 	}*/
-	std::thread timerTh(timer, &timeVal);
+	//std::thread timerTh(timer, &timeVal);
 
-	timerTh.join();
+	//timerTh.join();
 	loop = true;
+	//listen = false;
+	listen = true;
 
 	while (loop)
 	{
-		/*
+		
 		if (!listen)
 		{
 			std::cout << "Enter a message to send (or quit, or listen): ";
@@ -109,16 +124,18 @@ int main()
 				std::cin.clear();
 				std::cin.ignore(255, '\n');
 			}
+			
+			//send(sock, buf, strlen(buf) + 1, 0);
+			sendto(sock, buf, strlen(buf) + 1, 0, (sockaddr*)&addrP1, sizeof(addrP1));
+			sendto(sock, buf, strlen(buf) + 1, 0, (sockaddr*)&addrP2, sizeof(addrP2));
 
-			send(sSnd, buf, strlen(buf) + 1, 0);
-
-			if (sockErrSnd == SOCKET_ERROR)
+/*			if (sockErrSnd == SOCKET_ERROR)
 			{
-				closesocket(sSnd);
+				closesocket(sock);
 				WSACleanup();
 				std::cout << "Error connecting: " << WSAGetLastError() << std::endl;
 				return 1;
-			}
+			}*/
 
 			if (!_stricmp(buf, "quit"))
 			{
@@ -133,13 +150,21 @@ int main()
 
 		else
 		{
-			int bytesRecv = recv(sRec, buf, BUF_SIZE, 0);
+			int bytesRecv = recvfrom(sock, buf, BUF_SIZE, 0, (sockaddr*)&checkAddr, &addrSize);
 
-			std::cout << "recv " << bytesRecv << " bytes.  Msg: " << buf << std::endl;
+			if (checkAddr.sin_addr.S_un.S_addr == addrP1.sin_addr.S_un.S_addr)
+			{
+				std::cout << "recv " << bytesRecv << " bytes.  Msg: " << buf << std::endl;
+			}
 
+			if (checkAddr.sin_addr.S_un.S_addr == addrP2.sin_addr.S_un.S_addr)
+			{
+				std::cout << "recv " << bytesRecv << " bytes.  Msg: " << buf << std::endl;
+			}
+			
 			if (bytesRecv == SOCKET_ERROR)
 			{
-				closesocket(sRec);
+				closesocket(sock);
 				std::cout << "Error recv: " << WSAGetLastError() << std::endl;
 				return 0;
 			}
@@ -148,11 +173,12 @@ int main()
 			{
 				loop = false;
 			}
-		} */
+		} 
 	}
 
-	closesocket(sRec);
-	closesocket(sSnd);
+	//closesocket(sRec);
+	//closesocket(sSnd);
+	closesocket(sock);
 	WSACleanup();
 
 	return 0;
