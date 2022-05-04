@@ -116,9 +116,56 @@ bool SendRecLogic::generateMines()
 	return false;
 }
 
-bool SendRecLogic::gameStart()
+bool SendRecLogic::gameStart(char buff[22])
 {
-	return false;
+	p1Tank.topLeft.X = 200;
+	p1Tank.topLeft.Y = 150;
+	p1Tank.botRight.X = 200 + TANKSIZE;
+	p1Tank.botRight.Y = 150 + TANKSIZE;
+
+	p2Tank.topLeft.X = 600 - TANKSIZE;
+	p2Tank.topLeft.Y = 450 - TANKSIZE;
+	p2Tank.botRight.X = 600;
+	p2Tank.botRight.Y = 450;
+
+	p1Points = 0;
+	p2Points = 0;
+
+	int time = 90;
+
+	//push in all values that don't need to be modified
+	buff[0] = 'P';
+	buff[1] = '1';
+	buff[6] = 'U';
+	buff[7] = 'P';
+	buff[8] = '2';
+	buff[13] = 'U';
+	buff[14] = 'T';
+	buff[15] = time;
+	buff[16] = 'S';
+	buff[17] = '1';
+	buff[18] = 0;
+	buff[19] = '2';
+	buff[20] = 0;
+
+	BS pos;
+	pos.s = p1Tank.topLeft.X;
+	buff[2] = pos.b[1];
+	buff[3] = pos.b[0];
+
+	pos.s = p1Tank.topLeft.Y;
+	buff[4] = pos.b[1];
+	buff[5] = pos.b[0];
+
+	pos.s = p2Tank.topLeft.X;
+	buff[9] = pos.b[1];
+	buff[10] = pos.b[0];
+
+	pos.s = p2Tank.topLeft.Y;
+	buff[11] = pos.b[1];
+	buff[12] = pos.b[0];
+
+	return true;
 }
 
 void SendRecLogic::sendUpdate()

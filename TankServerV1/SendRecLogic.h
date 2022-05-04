@@ -3,6 +3,12 @@
 #include "UDP.h"
 #include <Windows.h>
 
+union BS
+{
+	char b[2];
+	short s;
+};
+
 struct Tank
 {
 	COORD topLeft;
@@ -41,7 +47,7 @@ public:
 	bool generateWalls();
 	bool generateTanks();
 	bool generateMines();
-	bool gameStart();
+	bool gameStart(char buff[22]);
 
 	void sendUpdate();
 	void receiveUpdate(unsigned char p1Buffer[16], unsigned char p2Buffer[16], int time, unsigned char wrtBuff[64]);
