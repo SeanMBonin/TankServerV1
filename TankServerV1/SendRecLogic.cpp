@@ -1,6 +1,6 @@
 #include "SendRecLogic.h"
 
-BOOL SendRecLogic::posAdjust(unsigned char dir, int player)
+BOOL SendRecLogic::posAdjust(char dir, int player)
 {
 	BOOL tankMove = true;
 	Tank* adjTank = new Tank;
@@ -148,6 +148,7 @@ bool SendRecLogic::gameStart(char buff[22])
 	buff[19] = '2';
 	buff[20] = 0;
 
+	
 	BS pos;
 	pos.s = p1Tank.topLeft.X;
 	buff[2] = pos.b[1];
@@ -164,7 +165,7 @@ bool SendRecLogic::gameStart(char buff[22])
 	pos.s = p2Tank.topLeft.Y;
 	buff[11] = pos.b[1];
 	buff[12] = pos.b[0];
-
+	
 	return true;
 }
 
@@ -173,21 +174,37 @@ void SendRecLogic::sendUpdate()
 
 }
 
-void SendRecLogic::receiveUpdate(unsigned char p1Buffer[16], unsigned char p2Buffer[16], int time, unsigned char wrtBuffer[64])
+void SendRecLogic::receiveUpdate(int player, char dir, int* time, char wrtBuffer[22])
 {
-	for (int i = 0; i < 16; i++)
+	if (dir == 'F')
 	{
-		if (p1Buffer[i] == 'M')
+		//do a fire
+	}
+	else
+	{
+		posAdjust(dir, player);
+		if (player == 1)
 		{
-			posAdjust(p1Buffer[i + 1], 1);
-		}
+			BS pos;
+			pos.s = p1Tank.topLeft.X;
+			wrtBuffer[2] = pos.b[1];
+			wrtBuffer[3] = pos.b[0];
 
-		if (p2Buffer[i] == 'M')
+			pos.s = p1Tank.topLeft.Y;
+			wrtBuffer[4] = pos.b[1];
+			wrtBuffer[5] = pos.b[0];
+		}
+		else
 		{
-			posAdjust(p2Buffer[i + 1], 2);
+			BS pos;
+			pos.s = p2Tank.topLeft.X;
+			wrtBuffer[9] = pos.b[1];
+			wrtBuffer[10] = pos.b[0];
+
+			pos.s = p2Tank.topLeft.Y;
+			wrtBuffer[11] = pos.b[1];
+			wrtBuffer[12] = pos.b[0];
 		}
-
-
 
 	}
 }

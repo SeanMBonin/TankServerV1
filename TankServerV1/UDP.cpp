@@ -1,8 +1,11 @@
 #include "UDP.h"
 #include <iostream>
 
-UDP::UDP()
+UDP::UDP(int* time, BOOL* start)
 {
+	_timer = time;
+	_start = start;
+
 	_addrSizeP1 = sizeof(_addrP1);
 	_addrSizeP2 = sizeof(_addrP2);
 	_addrSizeChk = sizeof(_checkAddr);
@@ -20,8 +23,8 @@ UDP::UDP()
 
 	_addrRec.sin_port = htons(49152);
 
-	//inet_pton(AF_INET, "64.72.1.247", &(_addrRec.sin_addr));
-	inet_pton(AF_INET, "192.168.24.194", &(_addrRec.sin_addr));
+	inet_pton(AF_INET, "64.72.1.247", &(_addrRec.sin_addr));
+	//inet_pton(AF_INET, "192.168.24.194", &(_addrRec.sin_addr));
 
 	_addressRec = (sockaddr*)&_addrRec;
 
@@ -60,6 +63,7 @@ BOOL UDP::lobby(int players, BOOL* run)
 				buff[0] = 'L';
 				buff[1] = '1';
 				sendto(_sock, buff, 3, 0, (sockaddr*)&_addrP1, _addrSizeP1);
+				p1Con = true;
 			}
 			else if (!p2Con)
 			{
@@ -68,6 +72,7 @@ BOOL UDP::lobby(int players, BOOL* run)
 				buff[0] = 'L';
 				buff[1] = '2';
 				sendto(_sock, buff, 3, 0, (sockaddr*)&_addrP2, _addrSizeP2);
+				p2Con = true;
 			}
 			else
 			{
@@ -105,6 +110,7 @@ BOOL UDP::lobby(int players, BOOL* run)
 		{
 			if (init())
 			{
+				*_start = true;
 				game();
 			}
 		}
@@ -115,28 +121,31 @@ BOOL UDP::lobby(int players, BOOL* run)
 
 BOOL UDP::init()
 {
-	char initBuff[22]{};
-	_srl.gameStart(initBuff);
+	SendRecLogic gameLogic;
+	gameLogic.gameStart(_wrtBuffer);
 
-	sendto(_sock, initBuff, _UPDSIZE, 0, (sockaddr*)&_addrP1, _addrSizeP1);
-	sendto(_sock, initBuff, _UPDSIZE, 0, (sockaddr*)&_addrP2, _addrSizeP2);
+	sendto(_sock, _wrtBuffer, _UPDSIZE, 0, (sockaddr*)&_addrP1, _addrSizeP1);
+	sendto(_sock, _wrtBuffer, _UPDSIZE, 0, (sockaddr*)&_addrP2, _addrSizeP2);
 
 	return true;
 }
 
 BOOL UDP::game()
 {
+	SendRecLogic gameLogic;
 	recvfrom(_sock, _rdBuffer, _BUF_SIZE, 0, (sockaddr*)&_checkAddr, &_addrSizeChk);
 
 	if (_checkAddr.sin_addr.S_un.S_addr == _addrP1.sin_addr.S_un.S_addr)
 	{
 		if (_rdBuffer[0] == 'F')
 		{
+			//spawn a shot
 
 		}
 		else
 		{
-			
+			//do a move
+			gameLogic.receiveUpdate(1, _rdBuffer[0], _timer, _wrtBuffer);
 		}
 	}
 

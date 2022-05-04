@@ -15,7 +15,8 @@ private:
 	//The socket and receiving address
 	SOCKET _sock;
 	SOCKADDR_IN _addrRec;
-	SendRecLogic _srl;
+	int* _timer;
+	BOOL* _start;
 
 	//Empty addresses for both players and a check address + sizes
 	SOCKADDR_IN _addrP1;
@@ -32,13 +33,13 @@ private:
 
 	const int _BUF_SIZE = 64;
 	const int _UPDSIZE = 22;
-	char _wrtBuffer[64]{};
+	char _wrtBuffer[22]{};
 	char _rdBuffer[64]{};
 
 	BOOL p1Con, p2Con;
 
 public:
-	UDP();
+	UDP(int* time, BOOL* start);
 	~UDP();
 	BOOL lobby(int players, BOOL* run); //will allow me to test with 1 or 2 clients
 	BOOL init(); //Simple game setup logic

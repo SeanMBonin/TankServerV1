@@ -13,6 +13,8 @@ struct Tank
 {
 	COORD topLeft;
 	COORD botRight;
+	BOOL shot;
+	COORD shotLoc;
 };
 
 struct Wall
@@ -40,7 +42,7 @@ private:
 	Tank p1Tank;
 	Tank p2Tank;
 
-	BOOL posAdjust(unsigned char dir, int player);
+	BOOL posAdjust(char dir, int player);
 
 public:
 	bool lobby();
@@ -50,7 +52,7 @@ public:
 	bool gameStart(char buff[22]);
 
 	void sendUpdate();
-	void receiveUpdate(unsigned char p1Buffer[16], unsigned char p2Buffer[16], int time, unsigned char wrtBuff[64]);
+	void receiveUpdate(int player, char dir, int* time, char wrtBuff[22]);
 };
 
 #endif
