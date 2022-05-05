@@ -133,32 +133,34 @@ BOOL UDP::init()
 BOOL UDP::game()
 {
 	SendRecLogic gameLogic;
-	recvfrom(_sock, _rdBuffer, _BUF_SIZE, 0, (sockaddr*)&_checkAddr, &_addrSizeChk);
-
-	if (_checkAddr.sin_addr.S_un.S_addr == _addrP1.sin_addr.S_un.S_addr)
+	//Timer not timed out, game still running
+	while (*_timer > 0)
 	{
-		if (_rdBuffer[0] == 'F')
-		{
-			//spawn a shot
+		recvfrom(_sock, _rdBuffer, _BUF_SIZE, 0, (sockaddr*)&_checkAddr, &_addrSizeChk);
 
-		}
-		else
+		if (_checkAddr.sin_addr.S_un.S_addr == _addrP1.sin_addr.S_un.S_addr)
 		{
-			//do a move
+			// update function has all the logic
 			gameLogic.receiveUpdate(1, _rdBuffer[0], _timer, _wrtBuffer);
 		}
-	}
 
-	if (_checkAddr.sin_addr.S_un.S_addr == _addrP2.sin_addr.S_un.S_addr)
-	{
-		if (_rdBuffer[0] == 'F')
+		if (_checkAddr.sin_addr.S_un.S_addr == _addrP2.sin_addr.S_un.S_addr)
 		{
+			gameLogic.receiveUpdate(2, _rdBuffer[0], _timer, _wrtBuffer);
+		}
 
-		}
-		else
-		{
-			
-		}
+		sendto(_sock, _wrtBuffer, _UPDSIZE, 0, (sockaddr*)&_addrP1, _addrSizeP1);
+		sendto(_sock, _wrtBuffer, _UPDSIZE, 0, (sockaddr*)&_addrP2, _addrSizeP2);
 	}
+	
+	//Send the results to the players
+	int sendSize = 0;
+	sendSize = gameLogic.results(_wrtBuffer, 1);
+	sendto(_sock, _wrtBuffer, sendSize, 0, (sockaddr*)&_addrP1, _addrSizeP1);
+
+	sendSize = gameLogic.results(_wrtBuffer, 2);
+	sendto(_sock, _wrtBuffer, sendSize, 0, (sockaddr*)&_addrP2, _addrSizeP2);
+	
+
 	return false;
 }

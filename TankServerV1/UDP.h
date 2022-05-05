@@ -32,8 +32,8 @@ private:
 	sockaddr* _addressRec;
 
 	const int _BUF_SIZE = 64;
-	const int _UPDSIZE = 22;
-	char _wrtBuffer[22]{};
+	const int _UPDSIZE = 30;
+	char _wrtBuffer[30]{};
 	char _rdBuffer[64]{};
 
 	BOOL p1Con, p2Con;
