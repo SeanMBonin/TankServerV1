@@ -1,9 +1,10 @@
 #include "SendRecLogic.h"
+#include <iostream>
 
 BOOL SendRecLogic::posAdjust(char dir, int player)
 {
 	BOOL tankMove = true;
-	Tank* adjTank = new Tank;
+	Tank* adjTank;
 	if (player == 1)
 	{
 		adjTank = &p1Tank;
@@ -16,6 +17,8 @@ BOOL SendRecLogic::posAdjust(char dir, int player)
 	switch (dir)
 	{
 	case 'w':
+		std::cout << "Player " << player << " moved up" << std::endl;
+		adjTank->facing = 'U';
 		if (adjTank->topLeft.Y > MINBOUND + 5)
 		{
 			adjTank->topLeft.Y -= 5;
@@ -28,13 +31,17 @@ BOOL SendRecLogic::posAdjust(char dir, int player)
 		}
 		else
 		{
+			adjTank = NULL;
 			delete adjTank;
+			
 			tankMove = false;
 		}
 
 		break;
 		
 	case 'a':
+		std::cout << "Player " << player << " moved left" << std::endl;
+		adjTank->facing = 'L';
 		if (adjTank->topLeft.X > MINBOUND + 5)
 		{
 			adjTank->topLeft.X -= 5;
@@ -47,6 +54,7 @@ BOOL SendRecLogic::posAdjust(char dir, int player)
 		}
 		else
 		{
+			adjTank = NULL;
 			delete adjTank;
 			tankMove = false;
 		}
@@ -54,6 +62,8 @@ BOOL SendRecLogic::posAdjust(char dir, int player)
 		break;
 
 	case 's':
+		std::cout << "Player " << player << " moved down" << std::endl;
+		adjTank->facing = 'D';
 		if (adjTank->botRight.Y < MAXYBOUND - 5)
 		{
 			adjTank->topLeft.Y += 5;
@@ -66,6 +76,7 @@ BOOL SendRecLogic::posAdjust(char dir, int player)
 		}
 		else
 		{
+			adjTank = NULL;
 			delete adjTank;
 			tankMove = false;
 		}
@@ -73,6 +84,8 @@ BOOL SendRecLogic::posAdjust(char dir, int player)
 		break;
 
 	case 'd':
+		std::cout << "Player " << player << " moved right" << std::endl;
+		adjTank->facing = 'R';
 		if (adjTank->botRight.X < MAXXBOUND - 5)
 		{
 			adjTank->topLeft.X += 5;
@@ -85,6 +98,7 @@ BOOL SendRecLogic::posAdjust(char dir, int player)
 		}
 		else
 		{
+			adjTank = NULL;
 			delete adjTank;
 			tankMove = false;
 		}
@@ -92,14 +106,15 @@ BOOL SendRecLogic::posAdjust(char dir, int player)
 		break;
 	}
 
+	adjTank = NULL;
 	delete adjTank;
 	return tankMove;
 }
 
 BOOL SendRecLogic::shotAdjust(int player)
 {
-	Tank* adjTank = new Tank;
-	Tank* collision = new Tank;
+	Tank* adjTank;
+	Tank* collision;
 
 	if (player == 1)
 	{
@@ -175,6 +190,9 @@ BOOL SendRecLogic::shotAdjust(int player)
 		adjTank->shotLoc.Y = 0;
 		adjTank->shotLoc.X = 0;
 
+		adjTank = NULL;
+		collision = NULL;
+
 		delete adjTank;
 		delete collision;
 
@@ -182,6 +200,8 @@ BOOL SendRecLogic::shotAdjust(int player)
 	}
 	
 	//no collision
+	adjTank = NULL;
+	collision = NULL;
 	delete adjTank;
 	delete collision;
 
@@ -201,7 +221,7 @@ BOOL SendRecLogic::doFire(char dir, int player)
 	}
 
 	adjTank->shot = true;
-
+	adjTank->shotDir = dir;
 	//Depending on direction, place the shot in the middle and in front of tank
 	switch (dir)
 	{
@@ -225,6 +245,7 @@ BOOL SendRecLogic::doFire(char dir, int player)
 		adjTank->shotLoc.Y = adjTank->topLeft.Y + 25;
 		break;
 	}
+	adjTank = NULL;
 	delete adjTank;
 	return true;
 }
@@ -264,7 +285,7 @@ bool SendRecLogic::generateTanks(int player)
 		p1Points++;
 	}
 
-
+	return true;
 }
 
 bool SendRecLogic::generateMines()

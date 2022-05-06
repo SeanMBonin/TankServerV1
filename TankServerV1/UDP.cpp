@@ -23,7 +23,7 @@ UDP::UDP(int* time, BOOL* start)
 
 	_addrRec.sin_port = htons(49152);
 
-	inet_pton(AF_INET, "64.72.1.247", &(_addrRec.sin_addr));
+	inet_pton(AF_INET, "64.72.2.119", &(_addrRec.sin_addr));
 	//inet_pton(AF_INET, "192.168.24.194", &(_addrRec.sin_addr));
 
 	_addressRec = (sockaddr*)&_addrRec;

@@ -20,13 +20,13 @@ void timer(int* time, BOOL* start)
 		//Just waits until start is true
 	}
 
-	while (time > 0)
+	while (*time > 0)
 	{
 		std::this_thread::sleep_for(std::chrono::seconds(1));
-		std::cout << time << std::endl;
-		time--;
+		std::cout << *time << std::endl;
+		*time-= 1;
 
-		if (time < 0)
+		if (*time <= 0)
 		{
 			std::cout << "Game Time Out!" << std::endl;
 		}
